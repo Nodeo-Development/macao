@@ -1,6 +1,6 @@
 {
   "name": "nodeo/framework",
-  "description": "A basic web framework for PHP 8",
+  "description": "A lightweight web framework for PHP 8",
   "minimum-stability": "stable",
   "license": "proprietary",
   "authors": [

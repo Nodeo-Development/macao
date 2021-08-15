@@ -11,6 +11,7 @@ namespace Macao\IO;
 use Exception;
 use InvalidArgumentException;
 use JetBrains\PhpStorm\ExpectedValues;
+use JetBrains\PhpStorm\Pure;
 use RuntimeException;
 
 /**
@@ -220,6 +221,7 @@ class StreamImpl implements Stream
     /**
      * @inheritDoc
      */
+    #[Pure]
     public function isSeekable(): bool
     {
         return $this->seekable;
@@ -264,6 +266,7 @@ class StreamImpl implements Stream
     /**
      * @inheritDoc
      */
+    #[Pure]
     public function isReadable(): bool
     {
         return $this->readable;
@@ -363,6 +366,7 @@ class StreamImpl implements Stream
     /**
      * @inheritDoc
      */
+    #[Pure]
     public function isWritable(): bool
     {
         return $this->writable;
@@ -436,6 +440,7 @@ class StreamImpl implements Stream
      * @return bool <code>true</code> if the stream is closed,
      * <code>false</code> otherwise.
      */
+    #[Pure]
     private function isClosed(): bool
     {
         return $this->closed;

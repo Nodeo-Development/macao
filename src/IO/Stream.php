@@ -10,6 +10,7 @@ namespace Macao\IO;
 
 use InvalidArgumentException;
 use JetBrains\PhpStorm\ExpectedValues;
+use JetBrains\PhpStorm\Pure;
 
 /**
  * Interface Stream
@@ -53,6 +54,7 @@ interface Stream
      * @return bool <code>true</code> if the stream is seekable,
      * <code>false</code> if it is not or if the stream is closed.
      */
+    #[Pure]
     public function isSeekable(): bool;
 
     /**
@@ -82,11 +84,39 @@ interface Stream
     public function rewind();
 
     /**
+     * Returns whether the stream is readable.
+     *
+     * @return bool <code>true</code> if the stream is readable,
+     * <code>false</code> if it is not or if the stream is closed.
+     */
+    #[Pure]
+    public function isReadable(): bool;
+
+    /**
+     * Reads data from the stream.
+     * At most $length bytes will be read. Fewer bytes can be read if no more
+     * bytes are available.
+     *
+     * @param ?int $length [optional] The maximal number of bytes to read.
+     * If the length is not specified or is null, all the file will be read.
+     * @return string The data read from the stream.
+     */
+    public function read(?int $length = null): string;
+
+    /**
+     * Returns the remaining contents of the stream.
+     *
+     * @return string The stream remaining contents.
+     */
+    public function getContents(): string;
+
+    /**
      * Returns whether the stream is writable.
      *
      * @return bool <code>true</code> if the stream is writable,
      * <code>false</code> if it is not or if the stream is closed.
      */
+    #[Pure]
     public function isWritable(): bool;
 
     /**
@@ -109,32 +139,6 @@ interface Stream
      * truncated.
      */
     public function truncate(?int $size = null);
-
-    /**
-     * Returns whether the stream is readable.
-     *
-     * @return bool <code>true</code> if the stream is readable,
-     * <code>false</code> if it is not or if the stream is closed.
-     */
-    public function isReadable(): bool;
-
-    /**
-     * Reads data from the stream.
-     * At most $length bytes will be read. Fewer bytes can be read if no more
-     * bytes are available.
-     *
-     * @param ?int $length [optional] The maximal number of bytes to read.
-     * If the length is not specified or is null, all the file will be read.
-     * @return string The data read from the stream.
-     */
-    public function read(?int $length = null): string;
-
-    /**
-     * Returns the remaining contents of the stream.
-     *
-     * @return string The stream remaining contents.
-     */
-    public function getContents(): string;
 
     /**
      * Returns the metadata of the stream.

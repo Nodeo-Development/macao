@@ -1,5 +1,5 @@
 {
-  "name": "nodeo/framework",
+  "name": "nodeo/macao",
   "description": "A lightweight web framework for PHP 8",
   "minimum-stability": "stable",
   "license": "proprietary",
@@ -14,7 +14,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Framework\\": "src/"
+      "Macao\\": "src/"
     }
   },
   "require-dev": {

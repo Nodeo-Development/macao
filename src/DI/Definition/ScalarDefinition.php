@@ -8,7 +8,9 @@
 
 namespace Macao\DI\Definition;
 
-class Definition
+use JetBrains\PhpStorm\ArrayShape;
+
+class ScalarDefinition extends AbstractDefinition
 {
     private mixed $value;
 
@@ -17,8 +19,13 @@ class Definition
         $this->value = $value;
     }
 
-    public function getValue(): mixed
-    {
+    public function resolve(
+        array $bindings,
+        #[ArrayShape([
+            'autoWiring' => 'bool'
+        ])] array $options,
+        array $breadcrumb = []
+    ): mixed {
         return $this->value;
     }
 }

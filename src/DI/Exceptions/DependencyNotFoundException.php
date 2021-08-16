@@ -11,7 +11,7 @@ namespace Macao\DI\Exceptions;
 use JetBrains\PhpStorm\Pure;
 use RuntimeException;
 
-class NotFoundException extends RuntimeException
+class DependencyNotFoundException extends RuntimeException
 {
     /**
      * @param string $key
@@ -21,7 +21,7 @@ class NotFoundException extends RuntimeException
     {
         parent::__construct(
             sprintf(
-                "The key '%s' could not be resolved",
+                'The key "%s" could not be found',
                 $key
             )
         );

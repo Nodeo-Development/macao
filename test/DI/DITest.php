@@ -7,15 +7,16 @@
 
 namespace Test\DI;
 
-use Macao\DI\Container\ContainerBuilder;
-use Macao\DI\Exceptions\NotFoundException;
+use Macao\DI\ContainerBuilder;
+use Macao\DI\Exceptions\DependencyNotFoundException;
+use Macao\DI\Exceptions\UnresolvableDependencyException;
 use PHPUnit\Framework\TestCase;
 
 class DITest extends TestCase
 {
     public function testAutoWiring()
     {
-        $container = ContainerBuilder::new(new MockBinder(new B()))
+        $container = ContainerBuilder::new(new MockBinder())
             ->withAutoWiring()
             ->build();
 
@@ -28,11 +29,35 @@ class DITest extends TestCase
 
     public function testBindScalar()
     {
-        $container = ContainerBuilder::new(new MockBinder(new B()))
+        $container = ContainerBuilder::new(new MockBinder())
             ->build();
 
         self::assertEquals('localhost', $container->get('DB_HOST'));
         self::assertEquals(3309, $container->get('DB_PORT'));
+    }
+
+    public function testBindScalarOnClass()
+    {
+        $container = ContainerBuilder::new(new MockBinder())
+            ->withAutoWiring()
+            ->build();
+
+        self::assertEquals(
+            $container->get('DB_HOST'),
+            $container->get(F::class)->getDBHOST()
+        );
+    }
+
+    public function testNamedScalarOnClass()
+    {
+        $container = ContainerBuilder::new(new MockBinder())
+            ->withAutoWiring()
+            ->build();
+
+        self::assertEquals(
+            'localhost',
+            $container->get(G::class)->getDatabaseHost()
+        );
     }
 
     public function testBindInstance()
@@ -58,7 +83,7 @@ class DITest extends TestCase
 
     public function testBindSingleton()
     {
-        $container = ContainerBuilder::new(new MockBinder(new B()))
+        $container = ContainerBuilder::new(new MockBinder())
             ->withAutoWiring()
             ->build();
 
@@ -75,13 +100,37 @@ class DITest extends TestCase
         self::assertTrue($a1 === $a2 && $a2 === $a3);
     }
 
-    public function testRaisesExceptionWhenNoAutoWiring()
+    public function testRaisesNotFoundExceptionWithoutAutoWiring()
     {
-        $this->expectException(NotFoundException::class);
+        $this->expectException(DependencyNotFoundException::class);
 
-        $container = ContainerBuilder::new(new MockBinder(new B()))
+        $container = ContainerBuilder::new(new MockBinder())
             ->build();
 
         $container->get(D::class);
+    }
+
+    public function testRaisesUnresolvableExceptionWithoutAutoWiring()
+    {
+        $this->expectException(UnresolvableDependencyException::class);
+
+        $container = ContainerBuilder::new(new MockBinder())
+            ->build();
+
+        self::assertTrue($container->has(IE::class));
+
+        $container->get(IE::class); // IE is resolvable but
+        // autoWiring is turned off and D was not bound
+    }
+
+    public function testRaisesExceptionOnCircularDependency()
+    {
+        $this->expectException(UnresolvableDependencyException::class);
+
+        $container = ContainerBuilder::new(new MockBinder())
+            ->withAutoWiring()
+            ->build();
+
+        $container->get(H::class);
     }
 }

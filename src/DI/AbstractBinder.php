@@ -11,7 +11,9 @@ namespace Macao\DI;
 use InvalidArgumentException;
 use JetBrains\PhpStorm\ExpectedValues;
 use Macao\DI\Definition\ClassDefinition;
-use Macao\DI\Definition\Definition;
+use Macao\DI\Definition\InstanceDefinition;
+use Macao\DI\Definition\ScalarDefinition;
+use Macao\DI\Definition\SingletonClassDefinition;
 
 abstract class AbstractBinder
 {
@@ -24,80 +26,97 @@ abstract class AbstractBinder
         return $this->bindings;
     }
 
-    protected function bindScalar(string $definition, mixed $value): void
-    {
-        if (key_exists($definition, $this->bindings)) {
+    protected function bind(
+        string $key,
+        string $implementation,
+        #[ExpectedValues(
+            valuesFromClass: Scope::class
+        )] int $scope = Scope::DEFAULT
+    ): void {
+        if (key_exists($key, $this->bindings)) {
             throw new InvalidArgumentException(
                 sprintf(
-                    "%s has already be bound to %s",
-                    $definition,
-                    $this->bindings[$definition]
+                    '%s is already bound to %s',
+                    $key,
+                    $this->bindings[$key]
                 )
             );
         }
 
-        $this->bindings[$definition] = new Definition($value);
+        if (!class_exists($key) && !interface_exists($key)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '%s must be a valid class/interface',
+                    $key
+                )
+            );
+        }
+
+        if (!in_array($scope, [Scope::DEFAULT, Scope::SINGLETON])) {
+            throw new InvalidArgumentException(
+                'Invalid scope.' .
+                'It must be either Scope::DEFAULT or Scope::SINGLETON'
+            );
+        }
+
+        if ($scope == Scope::SINGLETON) {
+            $definition = new SingletonClassDefinition($implementation);
+        } else {
+            $definition = new ClassDefinition($implementation);
+        }
+
+        $this->bindings[$key] = $definition;
     }
 
-    /**
-     * @template T
-     * @param class-string<T> $definition
-     * @param T $instance
-     */
     protected function bindInstance(
         string $definition,
         object $instance
     ): void {
         if (!class_exists($definition) && !interface_exists($definition)) {
             throw new InvalidArgumentException(
-                sprintf("%s must exist", $definition)
-            );
-        }
-
-        if (key_exists($definition, $this->bindings)) {
-            throw new InvalidArgumentException(
                 sprintf(
-                    "%s has already be bound to %s",
-                    $definition,
-                    $this->bindings[$definition]
+                    '%s must be a valid class/interface',
+                    $definition
                 )
             );
         }
 
-        $this->bindings[$definition] = new Definition($instance);
+        if (!($instance instanceof $definition)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '%s must be an instance of %s',
+                    $instance,
+                    $definition
+                )
+            );
+        }
+
+        $this->bindings[$definition] = new InstanceDefinition($instance);
     }
 
-    protected function bind(
+    protected function bindScalar(
         string $definition,
-        string $implementation,
-        #[ExpectedValues([
-            ClassDefinition::RE_INSTANTIABLE,
-            ClassDefinition::SINGLETON
-        ])] int $status = ClassDefinition::RE_INSTANTIABLE
-    ) {
-        if (
-            !(class_exists($definition) && interface_exists(
-                $definition
-            )) && !class_exists($implementation)
-        ) {
-            throw new InvalidArgumentException(
-                sprintf("%s and %s must exist", $definition, $implementation)
-            );
-        }
-
+        mixed $value
+    ): void {
         if (key_exists($definition, $this->bindings)) {
             throw new InvalidArgumentException(
                 sprintf(
-                    "%s has already be bound to %s",
+                    '%s is already bound to %s',
                     $definition,
                     $this->bindings[$definition]
                 )
             );
         }
 
-        $this->bindings[$definition] = new ClassDefinition(
-            $implementation,
-            $status
-        );
+        if (!is_scalar($value)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '%s must be a scalar',
+                    $value
+                )
+            );
+        }
+
+        $this->bindings[$definition] = new ScalarDefinition($value);
     }
 }

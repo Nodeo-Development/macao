@@ -6,11 +6,10 @@
  * Written by Juan <juan.valero@nodeo.fr>, 2021
  */
 
-namespace Macao\DI\Container;
+namespace Macao\DI;
 
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
-use Macao\DI\AbstractBinder;
 
 class ContainerBuilder
 {
@@ -37,7 +36,7 @@ class ContainerBuilder
         return $this;
     }
 
-    public function build(): Container
+    public function build(): ContainerImpl
     {
         $bindings = [];
 
@@ -52,7 +51,7 @@ class ContainerBuilder
         );
     }
 
-    #[ArrayShape(['autoWiring' => "bool"])]
+    #[ArrayShape(['autoWiring' => 'bool'])]
     #[Pure]
     private function getOptions(): array
     {

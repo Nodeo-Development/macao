@@ -14,7 +14,7 @@ use RuntimeException;
 /**
  * Class StreamFactory
  *
- * This class contains several methods to create an {@link Stream}
+ * This class contains several methods to create a {@link Stream}
  * instance.
  *
  * @see Stream
